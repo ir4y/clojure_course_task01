@@ -9,11 +9,7 @@
     []
     (if (-> tag-item attributes :class (= "r"))
       [tag-item]
-      (loop [tag-list (children tag-item),
-             result []]
-       (if (= [] tag-list)
-         result
-         (recur (rest tag-list) (->> tag-list first handle-tag (concat result) doall)))))))
+      (mapcat handle-tag (children tag-item)))))
 
 (defn get-links []
     "Extract href from list of h tags"
