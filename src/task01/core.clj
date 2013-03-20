@@ -5,11 +5,9 @@
 (defn handle-tag [tag-item]
   "Walk through html tree"
   "Found tags with class r and return them"
-  (if (string? tag-item)
-    []
     (if (-> tag-item attributes :class (= "r"))
       [tag-item]
-      (mapcat handle-tag (children tag-item)))))
+      (mapcat handle-tag (remove string? (children tag-item)))))
 
 (defn get-links []
     "Extract href from list of h tags"
