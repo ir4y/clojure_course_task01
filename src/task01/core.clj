@@ -2,6 +2,23 @@
   (:require [pl.danieljanus.tagsoup :refer :all])
   (:gen-class))
 
+(defn handle-tag [tag-item]
+  (if (string? tag-item)
+    []
+    (let [tag-name (get tag-item 0)
+          tag-attrs (get tag-item 1)
+          tag-content (subvec tag-item 2)]
+      (if (= (:class tag-attrs) "r")
+        tag-item
+        (if (= [] tag-content)
+          []
+          (if (string? (get tag-content 0))
+            []
+            (loop [tag-list tag-content,
+                   result []]
+              (if (= nil tag-list)
+              result
+              (recur (next tag-list) (doall (concat result (handle-tag (first tag-list)))))))))))))
 
 (defn get-links []
 " 1) Find all elements containing {:class \"r\"}.
@@ -21,9 +38,9 @@ The link from the example above is 'https://github.com/clojure/clojure'.
 Example: ['https://github.com/clojure/clojure', 'http://clojure.com/', . . .]
 "
   (let [data (parse "clojure_google.html")]
-    nil))
+    (map #(:href (get % 1)) (filter #(= :a (get % 0)) (handle-tag data)))))
 
 (defn -main []
-  (println (str "Found " (count (get-links)) " links!")))
+  (println (str "Found " (filter #(not(= % [])) (get-links))) " links!"))
 
 
