@@ -10,15 +10,11 @@
           tag-content (subvec tag-item 2)]
       (if (= (:class tag-attrs) "r")
         tag-item
-        (if (= [] tag-content)
-          []
-          (if (string? (get tag-content 0))
-            []
-            (loop [tag-list tag-content,
-                   result []]
-              (if (= nil tag-list)
-              result
-              (recur (next tag-list) (doall (concat result (handle-tag (first tag-list)))))))))))))
+        (loop [tag-list tag-content,
+               result []]
+         (if (= [] tag-list)
+           result
+           (recur (rest tag-list) (doall (concat result (handle-tag (first tag-list)))))))))))
 
 (defn get-links []
 " 1) Find all elements containing {:class \"r\"}.
