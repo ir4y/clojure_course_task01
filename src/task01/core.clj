@@ -3,37 +3,21 @@
   (:gen-class))
 
 (defn handle-tag [tag-item]
+  "Walk through html tree"
+  "Found tags with class r and return them"
   (if (string? tag-item)
     []
-    (if (= (:class (attributes tag-item)) "r")
+    (if (-> tag-item attributes :class (= "r"))
       [tag-item]
       (loop [tag-list (children tag-item),
              result []]
        (if (= [] tag-list)
          result
-         (recur (rest tag-list) (doall (concat result (handle-tag (first tag-list))))))))))
+         (recur (rest tag-list) (->> tag-list first handle-tag (concat result) doall)))))))
 
 (defn get-links []
-" 1) Find all elements containing {:class \"r\"}.
-
-Example:
-[:h3 {:class \"r\"} [:a {:shape \"rect\", :class \"l\",
-                         :href \"https://github.com/clojure/clojure\",
-                         :onmousedown \"return rwt(this,'','','','4','AFQjCNFlSngH8Q4cB8TMqb710dD6ZkDSJg','','0CFYQFjAD','','',event)\"}
-                     [:em {} \"clojure\"] \"/\" [:em {} \"clojure\"] \" · GitHub\"]]
-
-   2) Extract href from the element :a.
-
-The link from the example above is 'https://github.com/clojure/clojure'.
-
-  3) Return vector of all 10 links.
-
-Example: ['https://github.com/clojure/clojure', 'http://clojure.com/', . . .]
-"
-    (map #(:href (attributes %)) (map #(get % 0) (map #(vec (children %)) (handle-tag (parse "clojure_google.html"))))))
-
+    "Extract href from list of h tags"
+    (->> (parse "clojure_google.html") handle-tag (map #(-> % children first attributes :href))))
 
 (defn -main []
   (println (str "Found " (count (get-links))) " links!"))
-
-
