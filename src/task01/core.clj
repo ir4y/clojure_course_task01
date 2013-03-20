@@ -5,16 +5,13 @@
 (defn handle-tag [tag-item]
   (if (string? tag-item)
     []
-    (let [tag-name (tag tag-item)
-          tag-attrs (attributes tag-item)
-          tag-content (children tag-item)]
-      (if (= (:class tag-attrs) "r")
-        [tag-item]
-        (loop [tag-list tag-content,
-               result []]
-         (if (= [] tag-list)
-           result
-           (recur (rest tag-list) (doall (concat result (handle-tag (first tag-list)))))))))))
+    (if (= (:class (attributes tag-item)) "r")
+      [tag-item]
+      (loop [tag-list (children tag-item),
+             result []]
+       (if (= [] tag-list)
+         result
+         (recur (rest tag-list) (doall (concat result (handle-tag (first tag-list))))))))))
 
 (defn get-links []
 " 1) Find all elements containing {:class \"r\"}.
@@ -33,10 +30,10 @@ The link from the example above is 'https://github.com/clojure/clojure'.
 
 Example: ['https://github.com/clojure/clojure', 'http://clojure.com/', . . .]
 "
-    (map #(:href (attributes %))(map #(get  % 0) (map #(vec (children %)) (handle-tag (parse "clojure_google.html"))))))
+    (map #(:href (attributes %)) (map #(get % 0) (map #(vec (children %)) (handle-tag (parse "clojure_google.html"))))))
 
 
 (defn -main []
-  (println (str "Found " (filter #(not(= % [])) (get-links))) " links!"))
+  (println (str "Found " (count (get-links))) " links!"))
 
 
