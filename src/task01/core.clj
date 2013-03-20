@@ -5,11 +5,11 @@
 (defn handle-tag [tag-item]
   (if (string? tag-item)
     []
-    (let [tag-name (get tag-item 0)
-          tag-attrs (get tag-item 1)
-          tag-content (subvec tag-item 2)]
+    (let [tag-name (tag tag-item)
+          tag-attrs (attributes tag-item)
+          tag-content (children tag-item)]
       (if (= (:class tag-attrs) "r")
-        tag-item
+        [tag-item]
         (loop [tag-list tag-content,
                result []]
          (if (= [] tag-list)
@@ -33,8 +33,8 @@ The link from the example above is 'https://github.com/clojure/clojure'.
 
 Example: ['https://github.com/clojure/clojure', 'http://clojure.com/', . . .]
 "
-  (let [data (parse "clojure_google.html")]
-    (map #(:href (get % 1)) (filter #(= :a (get % 0)) (handle-tag data)))))
+    (map #(:href (attributes %))(map #(get  % 0) (map #(vec (children %)) (handle-tag (parse "clojure_google.html"))))))
+
 
 (defn -main []
   (println (str "Found " (filter #(not(= % [])) (get-links))) " links!"))
